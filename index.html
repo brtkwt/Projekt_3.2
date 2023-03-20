@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Kółko i krzyżyk</title>
+	<link rel="stylesheet" href="projekt_3.css">
+	<script src="projekt_3.js"></script>
+</head>
+<body>
+	<h1>Kółko i krzyżyk</h1>
+
+	<table>
+		<tr>
+			<td id="0"></td>
+			<td id="1"></td>
+			<td id="2"></td>
+		</tr>
+		<tr>
+			<td id="3"></td>
+			<td id="4"></td>
+			<td id="5"></td>
+		</tr>
+		<tr>
+			<td id="6"></td>
+			<td id="7"></td>
+			<td id="8"></td>
+		</tr>
+	</table>
+
+	<div id="message"></div>
+
+	<script type="text/javascript">
+	
+		let plansza = ["", "", "", "", "", "", "", "", ""];
+		let graczJeden = "X";
+		let ruchy = 0;
+		let trybGry = null;
+
+		function graj(komórka) {
+			if (komórka.innerHTML !== "" || zwrócZwyciezce() !== null) {
+				return;
+			}
+
+			komórka.innerHTML = graczJeden;
+			plansza[komórka.id] = graczJeden;
+			ruchy++;
+
+			if (zwrócZwyciezce() !== null) {
+				showMessage(`Gracz ${graczJeden} wygrał!`);
+			} else if (ruchy === 9) {
+				showMessage("Remis!");
+			} else {
+				graczJeden = graczJeden === "X" ? "O" : "X";
+				if (trybGry === "single" && graczJeden === "O") {
+					let ruchKomputera = zwrócRuchKomputera();
+					document.getElementById(ruchKomputera).innerHTML = graczJeden;
+					plansza[ruchKomputera] = graczJeden;
+					ruchy++;
+
+					if (zwrócZwyciezce() !== null) {
+						showMessage(`Gracz ${graczJeden} wygrał!`);
+					} else if (ruchy === 9) {
+						showMessage("Remis!");
+					} else {
+						graczJeden = "X";
+					}
+				}
+			}
+		}
+
+		function zwrócZwyciezce() {
+			const ustawieniaWygrywajace = [
+				[0, 1, 2], [3, 4, 5], [6, 7, 8], 
+				[0, 3, 6], [1, 4, 7], [2, 5, 8], 
+				[0, 4, 8], [2, 4, 6] 
+			];
+
+			for (let combination of ustawieniaWygrywajace) {
+				const [a, b, c] = combination;
+				if (plansza[a] !== "" && plansza[a] === plansza[b] && plansza[b] === plansza[c]) {
+					return plansza[a];
+				}
+			}
+
+			return null;
+		}
+
+		function showMessage(message) {
+			document.getElementById("message").innerHTML = message;
+		
+		document.getElementById("message").style.display = "block";
+	}
+
+	function zwrócRuchKomputera() {
+
+		for (let i = 0; i < plansza.length; i++) {
+			if (plansza[i] === "") {
+				plansza[i] = "O";
+				if (zwrócZwyciezce() === "O") {
+					plansza[i] = "";
+					return i;
+				} else {
+					plansza[i] = "";
+				}
+			}
+		}
+
+		for (let i = 0; i < plansza.length; i++) {
+			if (plansza[i] === "") {
+				plansza[i] = "X";
+				if (zwrócZwyciezce() === "X") {
+					plansza[i] = "";
+					return i;
+				} else {
+					plansza[i] = "";
+				}
+			}
+		}
+
+		if (plansza[4] === "") {
+			return 4;
+		}
+
+		let random;
+		do {
+			random = Math.floor(Math.random() * 9);
+		} while (plansza[random] !== "");
+
+		return random;
+	}
+
+	function Restart() {
+		plansza = ["", "", "", "", "", "", "", "", ""];
+		graczJeden = "X";
+		ruchy = 0;
+		trybGry = null;
+
+		let cells = document.getElementsByTagName("td");
+		for (let i = 0; i < cells.length; i++) {
+			cells[i].innerHTML = "";
+		}
+
+		document.getElementById("message").style.display = "none";
+	}
+
+	function TrybGry(mode) {
+		trybGry = mode;
+		restart();
+	}
+
+	let cells = document.getElementsByTagName("td");
+	for (let i = 0; i < cells.length; i++) {
+		cells[i].addEventListener("click", function() {
+			graj(this);
+		});
+	}
+</script>
+<div class="przyciski">
+	<button onclick="Restart()">Restart</button>
+	<button onclick="TrybGry('single')">Gra z komputerem</button>
+	<button onclick="TrybGry('multi')">Gra dla dwóch graczy</button>
+</div>
+</body>
+</html>
